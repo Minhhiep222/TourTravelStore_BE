@@ -9,6 +9,9 @@ use App\Models\Tour;
 use App\Models\Images;
 use App\Models\Schedule;
 use App\Models\Booking;
+use App\Models\Review;
+use App\Models\ImageReview;
+
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -32,5 +35,7 @@ class DatabaseSeeder extends Seeder
         // Schedule::factory()->count(50)->create(); // Creates 50 payment records
         Images::factory()->count(20)->create();
         Booking::factory()->count(50)->create();
+        Review::factory()->count(20)->create();
+        ImageReview::factory()->count(20)->create();
     }
 }

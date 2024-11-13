@@ -15,37 +15,37 @@ class UserSeeder extends Seeder
     {
         // Tạo hoặc cập nhật nếu username đã tồn tại
         User::updateOrCreate(
-            ['username' => 'admin'],
+            ['username' => 'admin@example.com'],
             [
                 'name' => 'Admin User',
                 'email' => 'admin@example.com',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make('Dat72@@##!!aa'),
+                'role' => 3,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        User::updateOrCreate(
+            ['username' => 'user1@example.com'],
+            [
+                'name' => 'Normal User',
+                'email' => 'user1@example.com',
+                'password' => Hash::make('Dat72@@##!!aa'),
                 'role' => 1,
                 'email_verified_at' => now(),
             ]
         );
 
         User::updateOrCreate(
-            ['username' => 'user1'],
+            ['username' => 'manager@example.com'],
             [
-                'name' => 'Normal User',
-                'email' => 'user1@example.com',
-                'password' => Hash::make('password123'),
+                'name' => 'Manager User',
+                'email' => 'manager@example.com',
+                'password' => Hash::make('Dat72@@##!!aa'),
                 'role' => 2,
                 'email_verified_at' => now(),
             ]
         );
 
-        User::updateOrCreate(
-            ['username' => 'manager'],
-            [
-                'name' => 'Manager User',
-                'email' => 'manager@example.com',
-                'password' => Hash::make('Dat72@@##!!aa'),
-                'role' => 3,
-                'email_verified_at' => now(),
-            ]
-        );
-       
     }
 }
