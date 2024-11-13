@@ -70,7 +70,7 @@ class ReviewController extends Controller
        try {
            //Make vaildate for variable
             $validatedData = $request->validate([
-                'rating' => 'required|integer',
+                'rating' => 'nullable',
                 'user_id' => 'required|integer',
                 'comment' => 'required|string',
                 'images' => 'nullable'
@@ -161,7 +161,7 @@ class ReviewController extends Controller
             // Validate data
             $validatedData = $request->validate([
                 'user_id' => 'required|integer',
-                'rating' => 'required|integer',
+                'rating' => 'nullable',
                 'comment' => 'required|string',
             ]);
 
