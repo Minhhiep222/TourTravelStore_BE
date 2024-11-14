@@ -10,6 +10,7 @@ use App\Models\Customer;
 use App\Models\Contact;
 use App\Models\Images;
 use App\Models\Booking;
+use App\Models\Favorite;
 use App\Models\Schedule;
 use App\Models\HashSecret;
 use Storage;
@@ -354,9 +355,14 @@ class TourController extends Controller
 
     public function displayNewstTour(Request $request) {
         try {
+            
+            $user = $request->user_id;
             $newstTour = Tour::getLatestTours();
-
-            $encryptedTours = $newstTour->map(function($tour) {
+            $encryptedTours = $newstTour->map(function($tour) use ($user) {  
+             $isFavorite = Favorite::where('user_id', $user)
+                                      ->where('tour_id', $tour->id)
+                                      ->exists();
+    
                 return [
                     'id' => HashSecret::encrypt($tour->id),
                     'name' => $tour->name,
@@ -370,8 +376,10 @@ class TourController extends Controller
                     'create_at' => $tour->create_at,
                     'update_at' => $tour->update_at,
                     'images' => $tour->images,
+                    'is_favorite' => $isFavorite, 
                 ];
             });
+    
             if ($newstTour->isEmpty()) {
                 return response()->json([
                     "message" => "Tour not found",

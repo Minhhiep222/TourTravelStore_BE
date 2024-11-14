@@ -17,9 +17,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(UserSeeder::class);
-        // $this->call(TourSeeder::class);
-        // $this->call(ImageSeeder::class);
+        $this->call(TourSeeder::class);
+        $this->call(ImageSeeder::class);
         $this->call(TourGuideSeeder::class,);
+        $this->call(FavoriteSeeder::class,);
 
         // \App\Models\User::factory(10)->create();
 
@@ -28,9 +29,9 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
         Payment::factory()->count(50)->create();
-        Tour::factory()->count(5)->create(); // Creates 50 payment records
+        // Tour::factory()->count(5)->create(); // Creates 50 payment records
         // Schedule::factory()->count(50)->create(); // Creates 50 payment records
-        Images::factory()->count(20)->create();
+        // Images::factory()->count(20)->create();
         Booking::factory()->count(50)->create();
     }
 }

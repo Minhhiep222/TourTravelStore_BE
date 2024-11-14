@@ -25,13 +25,13 @@ class Tour extends Model
         'availability',
     ];
 
-    //Connec to table image
+ 
     public function images()
     {
         return $this->hasMany(Images::class, 'tour_id', 'id');
     }
 
-    //Connec to table schedule
+    
     public function schedules()
     {
         return $this->hasMany(Schedule::class, 'tour_id', 'id');

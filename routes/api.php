@@ -12,6 +12,7 @@ use App\Http\Controllers\TourGuideController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ChatBotController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -75,6 +76,9 @@ Route::prefix('bookings')->controller(BookingController::class)->group(function 
 });
 
 //
+Route::get('deleteFavorite', [FavoriteController::class, 'deleteFavorite']); 
+Route::get('getToursFavorite', [FavoriteController::class, 'getToursFavorite']); 
+Route::post('/chatbot', [ChatBotController::class, 'chatbot']); 
 Route::get('getAllTourGuide',[TourGuideController::class,'getAllTourGuide']);
 Route::post('addTourGuide',[TourGuideController::class,'addTourGuide']);
 Route::get('getTourGuideID',[TourGuideController::class,'getTourGuideID']);

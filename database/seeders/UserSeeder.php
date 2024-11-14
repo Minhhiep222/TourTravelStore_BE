@@ -46,6 +46,16 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
+        User::updateOrCreate(
+            ['username' => 'nguyenthanhdat123@gmail.com'],
+            [
+                'name' => 'Nguyen Thanh Dat',
+                'email' => 'nguyenthanhdat123@gmail.com',
+                'password' => Hash::make('Dat72@@##!!aa'),
+                'role' => 1,
+                'email_verified_at' => now(),
+            ]
+        );
        
     }
 }
