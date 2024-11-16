@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\HashSecret;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\UserDetail;
@@ -13,7 +14,7 @@ use Illuminate\Mail\SentMessage;
 use Twilio\Rest\Client;
 use Carbon\Carbon;
 use Carbon\Exceptions\InvalidDateException;
-use Illuminate\Support\Facades\Auth;    
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -74,13 +75,13 @@ class AuthController extends Controller
                     ],
                 ], 422);
             }
-            
+
 
             $code = rand(10000, 99999);
             $username = $validatedData['username'];
             $totalChars = strlen($username);
             $digitCount = preg_match_all('/[0-9]/', $username);
-            
+
             // if ($totalChars > 0 && ($digitCount / $totalChars) >= 0.8) {
             //     if (!$this->isValidPhoneNumber($validatedData['username'])) {
             //         return response()->json([
@@ -106,7 +107,7 @@ class AuthController extends Controller
             //         }
             //     }
 
-               
+
             // }
             //  else {
                 if (!$this->isValidEmail($validatedData['username'])) {
@@ -117,41 +118,41 @@ class AuthController extends Controller
                         ],
                     ], 422);
                 }
-             
+
                 try {
                     Mail::send('emails.test', compact('code'), function($email) use ($validatedData, $code) {
                         $email->subject('Demo test mail');
                         $email->to($validatedData['username'], $code);
                     });
-                
+
                     // Kiểm tra và xóa bản ghi cũ
                     $verification = VerifyRegister::userExists($validatedData['username']);
                     if ($verification) {
                         $verification->delete();
-                    } 
+                    }
                         $newVerification = VerifyRegister::create([
-                            'username' => $validatedData['username'], 
+                            'username' => $validatedData['username'],
                             'verification_code' => $code,
                         ]);
-                      
-                } 
+
+                }
                 catch (\Exception $e) {
                     return response()->json([
                         'errors' => [
                             'username' => ['Cannot send email']
                         ],
-                        
+
                     ], 422);
                 }
-                
+
             // }
 
- 
+
             return response()->json([
                 'message' => 'Information sent validly',
                 'swicth' => 'send code'
             ], 201);
-            
+
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => 'Validation failed',
@@ -159,31 +160,31 @@ class AuthController extends Controller
             ], 422);
         }
     }
-    public function sendCode(Request $request) { 
+    public function sendCode(Request $request) {
         try {
             $validatedData = $request->validate([
                 'confirmCode' => 'required|string|max:5|min:5|regex:/^\d+$/',
             ], [
-                'confirmCode.required' => 'Confirmation code required', 
+                'confirmCode.required' => 'Confirmation code required',
                 'confirmCode.max' => 'The confirmation code must be exactly 5 characters long',
                 'confirmCode.min' => 'The confirmation code must be exactly 5 characters long',
                 'confirmCode.regex' => 'Only numeric characters are allowed',
             ]);
-            
+
             $username = $request->username;
             $code = $validatedData['confirmCode'];
-            
-            
+
+
             $verification = VerifyRegister::findByUsername($username);
-    
-           
+
+
             // if (!$verification) {
             //     return response()->json([
             //         'message' => 'No verification record found for this username',
             //         'username' => $code,
-            //     ], 404); 
+            //     ], 404);
             // }
-    
+
             // Kiểm tra mã xác minh
             if ($verification->verification_code != $code) {
                 return response()->json([
@@ -205,7 +206,7 @@ class AuthController extends Controller
             ], 422);
         }
     }
-    
+
     public function RegistermoreInfomation(Request $request) {
         try {
             $validatedData = $request->validate([
@@ -239,10 +240,10 @@ class AuthController extends Controller
                 ], 422);
             }
             $mainInfo = User::createUser($request);
-            
+
             $idUser = $mainInfo->id;
             $moreInfomation = UserDetail::createUserDetail($date,$validatedData,$idUser);
-            
+
             if($mainInfo && $moreInfomation) {
                 return response()->json([
                     'message' => 'created account',
@@ -255,7 +256,7 @@ class AuthController extends Controller
                 'message' => 'Validation faied',
                 'errors' => $e->validator->errors(),
             ], 422);
-        }       
+        }
     }
     public function registerMainInfo(Request $request) {
         $mainInfo = User::create([
@@ -296,7 +297,7 @@ class AuthController extends Controller
             $username = $validatedData['username'];
             $totalChars = strlen($username);
             $digitCount = preg_match_all('/[0-9]/', $username);
-            
+
             // if ($totalChars > 0 && ($digitCount / $totalChars) >= 0.8) {
             //     if (!$this->isValidPhoneNumber($validatedData['username'])) {
             //         return response()->json([
@@ -307,7 +308,7 @@ class AuthController extends Controller
             //         ], 422);
             //     }
 
-             
+
             // } else {
                 if (!$this->isValidEmail($validatedData['username'])) {
                     return response()->json([
@@ -327,7 +328,7 @@ class AuthController extends Controller
                     ]
                 ], 422);
             }
-    
+
             if(!Auth::attempt($request->only('username','password','role'))) {
                 return response()->json([
                     'message' => 'Validation failed',
@@ -348,7 +349,7 @@ class AuthController extends Controller
                     //  'user' => $user,
                    ],200);
                 }
-    
+
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => 'Validation failed',
@@ -362,24 +363,23 @@ class AuthController extends Controller
             ], 500);
         }
 
-       
-    }   
+
+    }
     public function inforCurrentUser(Request $request) {
         try {
             $user = Auth::user();
-    
-            if ($user) {
-                return response()->json([
-                    'message' => 'Get data successfully',
-                    'data' => $user,
-                ], 200);
-            } 
+
+
+            return response()->json([
+                'message' => 'Get data successfully',
+                'data' => $user,
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'User not found',
-                'error' => $e->getMessage(), 
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
-    
+
 }
