@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class UserDetail extends Model
+class UserDetails extends Model
 {
     use HasFactory;
 
@@ -26,6 +26,7 @@ class UserDetail extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+    
     public static function createUserDetail($date,$data,$idUser)
     {
         return self::create([

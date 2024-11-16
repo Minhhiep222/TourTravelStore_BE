@@ -22,6 +22,7 @@ return new class extends Migration
             $table->date('end_date')->nullable();
             $table->string('location', 100);
             $table->boolean('availability')->nullable();
+            $table->enum('status', [1, 2]);
             $table->timestamps();
         });
     }
