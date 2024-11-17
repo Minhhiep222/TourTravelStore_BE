@@ -13,6 +13,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ChatBotController;
+use App\Http\Controllers\GoogleMapController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -76,7 +77,10 @@ Route::prefix('bookings')->controller(BookingController::class)->group(function 
 });
 
 //
-Route::get('deleteFavorite', [FavoriteController::class, 'deleteFavorite']); 
+Route::get('getDistanceTravel', [GoogleMapController::class, 'getDistanceTravel']); 
+Route::get('getTimeTravel', [GoogleMapController::class, 'getTimeTravel']); 
+Route::get('reverseCoordinateConvertion', [GoogleMapController::class, 'reverseCoordinateConvertion']); 
+Route::get('coordinateConvertion', [GoogleMapController::class, 'coordinateConvertion']); 
 Route::get('getToursFavorite', [FavoriteController::class, 'getToursFavorite']); 
 Route::post('/chatbot', [ChatBotController::class, 'chatbot']); 
 Route::get('getAllTourGuide',[TourGuideController::class,'getAllTourGuide']);
