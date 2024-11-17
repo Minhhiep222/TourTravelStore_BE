@@ -50,7 +50,3 @@ Usage:
 -   B1: Clone serve: https://github.com/Minhhiep222/TourTravelStore_FE.git
 -   B2: run "npm install" in terminal or cmd, git bash
 -   B3: run "npm run serve" in terminal or cmd, git bash for database and data
-
-# 14/11/2024
-
-composer require guzzlehttp/guzzle

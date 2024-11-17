@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('reviews', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('user_id');
-            $table->foreignId('entity_id');
-            $table->tinyInteger('rating');
+            $table->integer('user_id');
+            $table->integer('tour_id');
+            $table->tinyInteger('rating')->nullable();
             $table->text('comment');
             $table->timestamps();
-            $table->tinyInteger('status')->default(1);
+            $table->tinyInteger('status')->default(1)->nullable();
             $table->foreignId('parent_id')->nullable();
-            // $table->boolean('is_approved')->default(true);
+            $table->boolean('is_approved')->default(true);
         });
     }
 
