@@ -13,6 +13,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ChatBotController;
+use App\Http\Controllers\ChatController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -75,10 +76,16 @@ Route::prefix('bookings')->controller(BookingController::class)->group(function 
     Route::get('/sort={key}', 'sortBooking');
 });
 
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/messages', [ChatController::class, 'index']);
+    Route::post('/messages', [ChatController::class, 'store']);
+});
+
 //
-Route::get('deleteFavorite', [FavoriteController::class, 'deleteFavorite']); 
-Route::get('getToursFavorite', [FavoriteController::class, 'getToursFavorite']); 
-Route::post('/chatbot', [ChatBotController::class, 'chatbot']); 
+Route::get('deleteFavorite', [FavoriteController::class, 'deleteFavorite']);
+Route::get('getToursFavorite', [FavoriteController::class, 'getToursFavorite']);
+Route::post('/chatbot', [ChatBotController::class, 'chatbot']);
 Route::get('getAllTourGuide',[TourGuideController::class,'getAllTourGuide']);
 Route::post('addTourGuide',[TourGuideController::class,'addTourGuide']);
 Route::get('getTourGuideID',[TourGuideController::class,'getTourGuideID']);
