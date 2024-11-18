@@ -76,11 +76,19 @@ Route::prefix('bookings')->controller(BookingController::class)->group(function 
     Route::get('/sort={key}', 'sortBooking');
 });
 
+/**Group api for chat real time channel */
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/conversations', [ChatController::class, 'getConversations']);
+    Route::post('/conversations', [ChatController::class, 'startConversation']);
+    Route::get('/conversations/{conversation}/messages', [ChatController::class, 'getMessages']);
+    Route::post('/conversations/{conversation}/messages', [ChatController::class, 'sendMessage']);
+});
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/messages', [ChatController::class, 'index']);
     Route::post('/messages', [ChatController::class, 'store']);
 });
+
 
 //
 Route::get('deleteFavorite', [FavoriteController::class, 'deleteFavorite']);

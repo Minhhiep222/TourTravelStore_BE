@@ -14,21 +14,26 @@ class MessageSent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public function __construct(
-        public Message $message
-    ) {}
+    public $message;
+
+    public function __construct(Message $message)
+    {
+        $this->message = $message;
+    }
 
     public function broadcastOn(): array
     {
         return [
-            new Channel('chat')
+            new PrivateChannel('chat.' . $this->message->conversation_id),
         ];
     }
 
-    public function broadcastWith(): array
-    {
-        return [
-            'message' => $this->message->load('user')->toArray()
-        ];
-    }
+     // Thêm method này để customize data được broadcast
+     public function broadcastWith()
+     {
+         return [
+             'message' => $this->message->toArray(),
+             'sender' => $this->message->sender->toArray()
+         ];
+     }
 }

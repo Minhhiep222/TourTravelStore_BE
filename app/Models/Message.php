@@ -11,14 +11,19 @@ class Message extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['message', 'user_id'];
+    protected $fillable = ['conversation_id', 'sender_id', 'message'];
 
     protected $casts = [
-        'created_at' => 'datetime',
+        'read_at' => 'datetime',
     ];
 
-    public function user(): BelongsTo
+    public function conversation(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Conversation::class);
+    }
+
+    public function sender(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'sender_id');
     }
 }

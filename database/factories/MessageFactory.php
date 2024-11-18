@@ -17,7 +17,8 @@ class MessageFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' =>$this->faker->numberBetween(1, 5) ,  // Tạo user tự động với factory (nếu chưa có user)
+            'sender_id' =>$this->faker->numberBetween(1, 5) ,  // Tạo user tự động với factory (nếu chưa có user)
+            'conversation_id' =>$this->faker->numberBetween(1, 5) ,  // Tạo user tự động với factory (nếu chưa có user)
             'message' => $this->faker->text(200),
         ];
     }
