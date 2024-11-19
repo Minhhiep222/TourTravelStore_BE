@@ -14,6 +14,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ChatBotController;
 use App\Http\Controllers\GoogleMapController;
+use App\Http\Controllers\ChatController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -76,13 +77,33 @@ Route::prefix('bookings')->controller(BookingController::class)->group(function 
     Route::get('/sort={key}', 'sortBooking');
 });
 
+/**Group api for chat real time channel */
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/conversations', [ChatController::class, 'getConversations']);
+    Route::post('/conversations', [ChatController::class, 'startConversation']);
+    Route::get('/conversations/{conversation}/messages', [ChatController::class, 'getMessages']);
+    Route::post('/conversations/{conversation}/messages', [ChatController::class, 'sendMessage']);
+});
+
+/**Group route api message  */
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/messages', [ChatController::class, 'index']);
+    Route::post('/messages', [ChatController::class, 'store']);
+});
+
+/**Route Broadcast when you use privatechannel  */
+Broadcast::routes(['middleware' => ['auth:sanctum']]);
+
 //
-Route::get('getDistanceTravel', [GoogleMapController::class, 'getDistanceTravel']); 
-Route::get('getTimeTravel', [GoogleMapController::class, 'getTimeTravel']); 
-Route::get('reverseCoordinateConvertion', [GoogleMapController::class, 'reverseCoordinateConvertion']); 
-Route::get('coordinateConvertion', [GoogleMapController::class, 'coordinateConvertion']); 
-Route::get('getToursFavorite', [FavoriteController::class, 'getToursFavorite']); 
-Route::post('/chatbot', [ChatBotController::class, 'chatbot']); 
+Route::get('deleteFavorite', [FavoriteController::class, 'deleteFavorite']);
+Route::get('getToursFavorite', [FavoriteController::class, 'getToursFavorite']);
+Route::post('/chatbot', [ChatBotController::class, 'chatbot']);
+Route::get('getDistanceTravel', [GoogleMapController::class, 'getDistanceTravel']);
+Route::get('getTimeTravel', [GoogleMapController::class, 'getTimeTravel']);
+Route::get('reverseCoordinateConvertion', [GoogleMapController::class, 'reverseCoordinateConvertion']);
+Route::get('coordinateConvertion', [GoogleMapController::class, 'coordinateConvertion']);
+Route::get('getToursFavorite', [FavoriteController::class, 'getToursFavorite']);
+Route::post('/chatbot', [ChatBotController::class, 'chatbot']);
 Route::get('getAllTourGuide',[TourGuideController::class,'getAllTourGuide']);
 Route::post('addTourGuide',[TourGuideController::class,'addTourGuide']);
 Route::get('getTourGuideID',[TourGuideController::class,'getTourGuideID']);
