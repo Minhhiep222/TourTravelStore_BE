@@ -89,6 +89,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/messages', [ChatController::class, 'store']);
 });
 
+Broadcast::routes(['middleware' => ['auth:sanctum']]);
 
 //
 Route::get('deleteFavorite', [FavoriteController::class, 'deleteFavorite']);

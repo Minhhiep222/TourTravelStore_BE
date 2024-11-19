@@ -21,19 +21,28 @@ class MessageSent implements ShouldBroadcast
         $this->message = $message;
     }
 
-    public function broadcastOn(): array
+    public function broadcastOn()
     {
-        return [
-            new PrivateChannel('chat.' . $this->message->conversation_id),
-        ];
+        return new PrivateChannel('chat.' . $this->message->conversation_id);
+
     }
 
-     // Thêm method này để customize data được broadcast
-     public function broadcastWith()
-     {
-         return [
-             'message' => $this->message->toArray(),
-             'sender' => $this->message->sender->toArray()
-         ];
-     }
+     // Thêm này để specify event name
+    public function broadcastAs()
+    {
+        return 'MessageSent';
+    }
+
+    public function broadcastWith()
+    {
+        \Log::info('Broadcasting message', [
+            'message' => $this->message->toArray(),
+            'conversation_id' => $this->message->conversation_id
+        ]);
+
+        return [
+            'message' => $this->message->toArray(),
+            'sender' => $this->message->sender->toArray()
+        ];
+    }
 }

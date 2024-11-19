@@ -97,12 +97,10 @@ class ChatController extends Controller
             'message' => $request->message
         ]);
 
-        // Load sender trước khi broadcast
-        $message->load('sender');
-
         // Thêm try-catch để handle lỗi broadcast
         try {
-            broadcast(new MessageSent($message))->toOthers();
+            broadcast(new MessageSent($message->load('sender')))->toOthers();
+            // dd(broadcast(new MessageSent($message))->toOthers());
         } catch (\Exception $e) {
             \Log::error('Broadcasting Error', [
                 'message_id' => $message->id,
