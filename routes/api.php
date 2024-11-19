@@ -84,11 +84,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/conversations/{conversation}/messages', [ChatController::class, 'sendMessage']);
 });
 
+/**Group route api message  */
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/messages', [ChatController::class, 'index']);
     Route::post('/messages', [ChatController::class, 'store']);
 });
 
+/**Route Broadcast when you use privatechannel  */
 Broadcast::routes(['middleware' => ['auth:sanctum']]);
 
 //
