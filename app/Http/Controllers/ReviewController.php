@@ -26,8 +26,6 @@ class ReviewController extends Controller
             ->where('tour_id', $tour_id)
             ->orderBy('updated_at', 'desc')->paginate($perPage);
 
-            // Khởi tạo truy vấn
-
             // Tạo mảng Review tùy chỉnh để trả về
             $reviewsArray = $reviews->getCollection()->map(function ($review) {
                 return [

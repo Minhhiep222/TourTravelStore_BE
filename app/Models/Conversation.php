@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\User;
 class Conversation extends Model
 {
     use HasFactory;
@@ -28,7 +29,7 @@ class Conversation extends Model
         return $this->hasMany(Message::class, 'conversation_id');
     }
 
-    public function getOtherUser(int $userId): User
+    public function getOtherUser(int $userId)
     {
         return $this->user_one_id === $userId ? $this->userTwo : $this->userOne;
     }

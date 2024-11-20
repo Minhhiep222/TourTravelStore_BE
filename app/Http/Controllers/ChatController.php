@@ -41,13 +41,11 @@ class ChatController extends Controller
     public function getConversations()
     {
         $userId = Auth::id();
-        // dd($userId);
         return Conversation::where('user_one_id', $userId)
             ->orWhere('user_two_id', $userId)
             ->with(['userOne', 'userTwo'])
             ->get()
             ->map(function ($conversation) use ($userId) {
-                // dd($conversation);
                 return [
                     'id' => $conversation->id,
                     'other_user' => $conversation->getOtherUser($userId),
@@ -114,14 +112,15 @@ class ChatController extends Controller
 
     public function startConversation(Request $request)
     {
+
         $request->validate([
-            'user_id' => 'required|exists:users,id'
+            'user_id' => 'required'
         ]);
 
         $currentUserId = Auth::id();
+
         $otherUserId = $request->user_id;
 
-        // Check if conversation already exists
         $conversation = Conversation::where(function ($query) use ($currentUserId, $otherUserId) {
             $query->where('user_one_id', $currentUserId)
                   ->where('user_two_id', $otherUserId);
@@ -135,9 +134,16 @@ class ChatController extends Controller
                 'user_one_id' => $currentUserId,
                 'user_two_id' => $otherUserId
             ]);
+            // dd( $conversation);
         }
 
-        return $conversation->load(['userOne', 'userTwo']);
+        // return $conversation->load(['userOne', 'userTwo']);
+
+        return response()->json([
+            "message" => "Success",
+            "conversation_id" => $conversation->id,
+            "conversation" => $conversation->load(['userOne', 'userTwo'])
+        ], 200);
     }
 
 }

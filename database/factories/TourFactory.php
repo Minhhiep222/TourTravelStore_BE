@@ -17,6 +17,7 @@ class TourFactory extends Factory
     public function definition(): array
     {
         return [
+            'user_id' => $this->faker->numberBetween(1, 4),
             'name' => $this->faker->sentence(5), // Generates a random name
             'description' => $this->faker->paragraph(), // Generates a random description
             'duration' => $this->faker->numberBetween(3, 10), // Generates a random duration

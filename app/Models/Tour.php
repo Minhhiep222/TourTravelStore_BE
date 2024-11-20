@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Images;
 use App\Models\Schedule;
+use App\Models\User;
+
 class Tour extends Model
 {
     use HasFactory;
@@ -23,22 +25,26 @@ class Tour extends Model
         'end_date',
         'location',
         'availability',
+        'user_id',
     ];
 
- 
+
     public function images()
     {
         return $this->hasMany(Images::class, 'tour_id', 'id');
     }
 
-    
+    public function user() {
+        return $this->hasOne(User::class, 'id', 'user_id');
+    }
+
     public function schedules()
     {
         return $this->hasMany(Schedule::class, 'tour_id', 'id');
     }
     public static function getTourDetailWithImages($tourId)
     {
-        return self::with('images')->find($tourId);
+        return self::with('images', 'user')->find($tourId);
     }
     public static function getLatestTours()
     {
