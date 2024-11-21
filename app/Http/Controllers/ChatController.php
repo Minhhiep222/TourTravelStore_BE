@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Conversation;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 class ChatController extends Controller
 {
     //
@@ -55,8 +56,11 @@ class ChatController extends Controller
                         ->whereNull('read_at')
                         ->count(),
                 ];
-            }
-        );
+            })
+            ->sortByDesc(function ($conversation) {
+                return optional($conversation['last_message'])->created_at ?? Carbon::minValue();
+            })
+            ->values(); // Để reset key của collection
     }
 
     public function getMessages($conversationId)
@@ -84,6 +88,7 @@ class ChatController extends Controller
 
         // Kiểm tra conversation tồn tại và user có quyền
         $conversation = Conversation::findOrFail($conversationId);
+
         if ($conversation->user_one_id !== Auth::id() &&
             $conversation->user_two_id !== Auth::id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -94,6 +99,18 @@ class ChatController extends Controller
             'sender_id' => Auth::id(),
             'message' => $request->message
         ]);
+
+        $conversationDetails = [
+            'conversation_id' => $conversation->id,
+            'other_user' => $conversation->getOtherUser(Auth::id()),
+            'last_message' => $message,
+            'unread_count' => $conversation->messages()
+                ->where('sender_id', '!=', Auth::id())
+                ->whereNull('read_at')
+                ->count(),
+        ];
+
+        // dd($conversationDetails);
 
         // Thêm try-catch để handle lỗi broadcast
         try {

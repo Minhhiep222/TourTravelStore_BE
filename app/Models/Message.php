@@ -19,11 +19,12 @@ class Message extends Model
 
     public function conversation(): BelongsTo
     {
-        return $this->belongsTo(Conversation::class);
+        return $this->belongsTo(Conversation::class, 'conversation_id');
     }
 
     public function sender(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sender_id');
     }
+
 }
