@@ -728,37 +728,37 @@ class TourController extends Controller
      * @param mixed $id
      * @return mixed|\Illuminate\Http\JsonResponse
      */
-    public function updateStatus($tatus, $id)
-    {
+    public function updateStatus(Request $request, $id)
+{
+    try {
+        $id = HashSecret::decrypt($id);
+        // Kiểm tra xem tour có tồn tại không
+        $tour = Tour::findOrFail($id);
 
-        try {
-            //Check tour not foud
-            $tour = Tour::findOrFail($id);
-            // Check if results are found
-            if ($tour->isEmpty()) {
-                return response()->json([
-                    'message' => 'No tours found.'
-                ], 404);
-            }
-            $tour->availability = $tatus;
-            $tour->save();
+        // Cập nhật trạng thái và tính khả dụng
+        $tour->status = $request->status;
+        $tour->availability = $request->status === 1 ? 1 : 0;
 
-            return response()->json([
-                'message' => 'Tour status updated successfully.',
-                'tour' => $tour
-            ], 200);
+        // Lưu thông tin vào database
+        $tour->save();
 
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'message' => 'Tour not found.',
-            ], 404);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'An error occurred while updating tour status.',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        return response()->json([
+            'message' => 'Tour status updated successfully.',
+            'tour' => $tour
+        ], 200);
+
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json([
+            'message' => 'Tour not found.',
+        ], 404);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'An error occurred while updating tour status.',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
+
 
     public function sortTours(Request $request)
     {
@@ -803,7 +803,15 @@ class TourController extends Controller
 
         // return Response::make($file, 200)->header("Content-Type", $type);
     }
+//     public function updateStatus(Request $request, $id)
+// {
+//     $tour = Tour::findOrFail($id);
+//     $tour->status = $request->status;
+//     $tour->availability = $request->availability;
+//     $tour->save();
 
+//     return response()->json(['message' => 'Cập nhật trạng thái thành công!'], 200);
+// }
 
 
 }
