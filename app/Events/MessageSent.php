@@ -2,6 +2,7 @@
 
 namespace App\Events;
 use App\Models\Message;
+use App\Models\Conversation;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -15,10 +16,12 @@ class MessageSent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $message;
+    public $conversation;
 
-    public function __construct(Message $message)
+    public function __construct(Message $message,$conversation)
     {
         $this->message = $message;
+        $this->conversation = $conversation;
     }
 
     public function broadcastOn()
@@ -42,6 +45,7 @@ class MessageSent implements ShouldBroadcast
 
         return [
             'message' => $this->message->toArray(),
+            'conversation' => $this->conversation,
             'sender' => $this->message->sender->toArray()
         ];
     }

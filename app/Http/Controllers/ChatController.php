@@ -114,7 +114,7 @@ class ChatController extends Controller
 
         // Thêm try-catch để handle lỗi broadcast
         try {
-            broadcast(new MessageSent($message->load('sender')))->toOthers();
+            broadcast(new MessageSent($message->load('sender'),$conversationDetails ))->toOthers();
             // dd(broadcast(new MessageSent($message))->toOthers());
         } catch (\Exception $e) {
             \Log::error('Broadcasting Error', [
@@ -123,7 +123,10 @@ class ChatController extends Controller
             ]);
         }
 
-        return $message;
+        return response()->json([
+            "message" => $message,
+            "conversation" => $conversationDetails
+        ]);
     }
 
 
