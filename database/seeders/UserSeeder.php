@@ -53,6 +53,18 @@ class UserSeeder extends Seeder
                 'email' => 'nguyenthanhdat123@gmail.com',
                 'password' => Hash::make('Dat72@@##!!aa'),
                 'role' => 1,
+                'notication' => true,
+                'email_verified_at' => now(),
+            ]
+        );
+        User::updateOrCreate(
+            ['username' => 'nguyenthanhdat456@gmail.com'],
+            [
+                'name' => 'Thanh Dat Nguyen',
+                'email' => 'nguyenthanhdat456@gmail.com',
+                'password' => Hash::make('Dat72@@##!!aa'),
+                'role' => 1,
+                'notication' => true,
                 'email_verified_at' => now(),
             ]
         );

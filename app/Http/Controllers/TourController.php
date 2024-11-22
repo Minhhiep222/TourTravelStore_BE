@@ -12,7 +12,11 @@ use App\Models\Images;
 use App\Models\Booking;
 use App\Models\Favorite;
 use App\Models\Schedule;
+use App\Models\NotificationTour;
 use App\Models\HashSecret;
+use App\Events\TourCreated;
+use App\Events\Notify; 
+
 use Storage;
 use File;
 use Illuminate\Support\Facades\Log;
@@ -113,6 +117,7 @@ class TourController extends Controller
             ]);
 
             $tour = Tour::create($validatedData);
+          
 
             //Get array schedules
             if ($request->has('schedules')) {
@@ -140,12 +145,29 @@ class TourController extends Controller
                 }
 
             }
+          
+          
+          $users = User::all();
+          foreach ($users as $user) {
+            if($user->role == 1 && $user->notication == 1) {
+                $notification = NotificationTour::create([
+                    'tour_id' => $tour->id,  
+                    'user_id' => $user->id, 
+                    'read' => false,  
+                ]);
+            }
+        }
+        $tour = Tour::with('images')->find($tour->id);
+        // $tour->tour_id = HashSecret::encrypt($tour->tour_id);  
+        
+        broadcast(new Notify($tour));
 
             return response()->json([
                 'message' => "Tour successfully created",
                 'tour' => $tour,
                 'image' => $image,
                 'schedule' => $schedule,
+                'notification' => $notification,
             ], 200);
 
 

@@ -22,7 +22,8 @@ class User extends Authenticatable
         'username',  // Thêm thuộc tính username
         'password',
         'email',
-        'role',      // Thêm thuộc tính role
+        'role', 
+        'notication',      // Thêm thuộc tính role
         'email_verified_at', // Thêm thuộc tính email_verified_at nếu cần
     ];
     /**
