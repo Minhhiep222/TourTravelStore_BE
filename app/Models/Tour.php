@@ -89,7 +89,10 @@ class Tour extends Model
     {
         return $query->where('category', 'LIKE', '%' . $category . '%');
     }
-
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
 
 
 }
