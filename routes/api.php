@@ -136,12 +136,10 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('inforCurrentUser', [AuthController::class,'inforCurrentUser']);
     Route::post('createTour', [NotificationController::class, 'createTour']);
 });
-Route::get('/broadcast',function(){
-    broadcast(new Notify());
-});
 // Route::get('/broadcast',function(){
 //     broadcast(new Notify());
 // });
+
 Route::post('RegistermoreInfomation', [AuthController::class,'RegistermoreInfomation']);
 Route::post('sendCode', [AuthController::class,'sendCode']);
 Route::post('registerMainInfo', [AuthController::class,'registerMainInfo']);

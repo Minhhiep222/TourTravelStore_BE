@@ -14,6 +14,7 @@ use App\Models\Favorite;
 use App\Models\Schedule;
 use App\Models\NotificationTour;
 use App\Models\HashSecret;
+use App\Events\Notify;
 use Storage;
 use File;
 use Illuminate\Support\Facades\Log;
@@ -87,6 +88,11 @@ class TourController extends Controller
             ]);
 
             $result = $this->tourService->createTour($validatedData, $request->file('images'));
+
+            $tour = Tour::with('images')->find($result['tour']->id);
+            // $tour->tour_id = HashSecret::encrypt($tour->tour_id);
+
+            broadcast(new Notify($tour));
 
             return response()->json([
                 'message' => "Tour successfully created",
