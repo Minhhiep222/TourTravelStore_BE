@@ -12,7 +12,11 @@ use App\Models\Images;
 use App\Models\Booking;
 use App\Models\Favorite;
 use App\Models\Schedule;
+use App\Models\NotificationTour;
 use App\Models\HashSecret;
+use App\Events\TourCreated;
+use App\Events\Notify;
+
 use Storage;
 use File;
 use Illuminate\Support\Facades\Log;
@@ -84,13 +88,58 @@ class TourController extends Controller
                 'user_id' => 'nullable',
             ]);
 
-            $result = $this->tourService->createTour($validatedData, $request->file('images'));
+            $tour = Tour::create($validatedData);
+
+
+            //Get array schedules
+            if ($request->has('schedules')) {
+                $schedules = json_decode($validatedData['schedules'], true);
+                foreach($schedules as $item) {
+                    $schedule = Schedule::create([
+                        'name' => $item['name_schedule'],
+                        'time' => $item['time_schedule'],
+                        'tour_id' => $tour->id,
+                    ]);
+                }
+            }
+
+            // Handle file uploads
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $image) {
+                    $path = time() . '_' . $image->getClientOriginalName();
+                    Storage::disk('public')->put($path, File::get($image));
+                    $image = Images::create([
+                        'tour_id' => $tour->id,
+                        'image_url' => $path,
+                        'alt_text' => $request->input('alt_text', 'Default alt text'),
+                    ]);
+                    // http://127.0.0.1:8000/images/7B9dDErH16ywJWIhieXV9sRYitUb0dC5qNgJ0jCo.png
+                }
+
+            }
+
+
+          $users = User::all();
+          foreach ($users as $user) {
+            if($user->role == 1 && $user->notication == 1) {
+                $notification = NotificationTour::create([
+                    'tour_id' => $tour->id,
+                    'user_id' => $user->id,
+                    'read' => false,
+                ]);
+            }
+        }
+        $tour = Tour::with('images')->find($tour->id);
+        // $tour->tour_id = HashSecret::encrypt($tour->tour_id);
+
+        broadcast(new Notify($tour));
 
             return response()->json([
                 'message' => "Tour successfully created",
-                'tour' => $result['tour'],
-                'image' => $result['image'],
-                'schedule' => $result['schedule'],
+                'tour' => $tour,
+                'image' => $image,
+                'schedule' => $schedule,
+                'notification' => $notification,
             ], 200);
 
         } catch (\Exception $e) {

@@ -92,6 +92,7 @@ class FavoriteController extends Controller
                     'created_at' => $data->created_at,
                     'start_date' => $data->start_date,
                     'updated_at' => $data->updated_at,
+                    'images' => $data->images,
                 ];
             });
     
