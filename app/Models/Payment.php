@@ -21,4 +21,15 @@ class Payment extends Model
         "notes",
         "transaction_id",
     ];
+     // Quan hệ với bảng tours
+     public function tour()
+     {
+         return $this->belongsTo(Tour::class);
+     }
+ 
+     // Quan hệ với bảng users
+     public function user()
+     {
+         return $this->belongsTo(User::class);
+     }
 }
