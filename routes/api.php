@@ -140,16 +140,11 @@ Route::delete('users/{id}', [UserController::class, 'destroy']);
 /**Group api payment */
 Route::prefix('payments')->controller(PaymentController::class)->group(function () {
     Route::get('/list', 'index');
-    Route::get('/Order/list', 'indexx');
+    Route::get('{id}', 'show');
     Route::put('{id}', 'update');
-    Route::delete('{id}', 'destroy'); 
+    Route::delete('{id}', 'destroy');
     Route::patch('deleteAll', 'destroyPayment');
     Route::post('/', 'store');
-
-    Route::delete('/payments/{id}','delete');
-    //ductoan
-     Route::get('/Order/list/{id}', [PaymentController::class, 'showw']);     // API xem chi tiết đơn hàng
-    // Route::delete('/payments/{id}', [PaymentController::class, 'delete']);
     // Route::get('/search/{key}', 'findByLocation');
     Route::get('/category/{key}', 'findByCategory');
     Route::get('total/count', 'countPayment');

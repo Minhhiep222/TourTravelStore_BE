@@ -25,8 +25,6 @@ class DatabaseSeeder extends Seeder
         $this->call(ImageSeeder::class);
         $this->call(TourGuideSeeder::class,);
         $this->call(FavoriteSeeder::class,);
-        $this->call(PaymentSeeder::class);
-
 
         // \App\Models\User::factory(10)->create();
 

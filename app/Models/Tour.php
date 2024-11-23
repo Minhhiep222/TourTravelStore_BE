@@ -114,6 +114,7 @@ class Tour extends Model
         return $query->where('category', 'LIKE', '%' . $category . '%');
     }
 
+<<<<<<< HEAD
     /**
      * Get Tour By User Id
      * @param mixed $userId
@@ -414,5 +415,7 @@ class Tour extends Model
     {
         return $this->hasMany(Payment::class);
     }
+=======
+>>>>>>> parent of 835406c (OrderDucToan để khoi nham)
 
 }
