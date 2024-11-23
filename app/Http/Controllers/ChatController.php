@@ -24,20 +24,20 @@ class ChatController extends Controller
         return response()->json($messages);
     }
 
-    public function store(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'message' => ['required', 'string', 'max:1000'],
-        ]);
+    // public function store(Request $request): JsonResponse
+    // {
+    //     $validated = $request->validate([
+    //         'message' => ['required', 'string', 'max:1000'],
+    //     ]);
 
-        // dd($request);
+    //     // dd($request);
 
-        $message = $request->user()->messages()->create($validated);
+    //     $message = $request->user()->messages()->create($validated);
 
-        broadcast(new MessageSent($message))->toOthers();
+    //     broadcast(new MessageSent($message))->toOthers();
 
-        return response()->json($message->load('user'));
-    }
+    //     return response()->json($message->load('user'));
+    // }
 
     public function getConversations()
     {

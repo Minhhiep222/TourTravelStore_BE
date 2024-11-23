@@ -31,6 +31,7 @@ use App\Http\Controllers\StatisticalController;
 /**Group api tours */
 Route::prefix('tours')->controller(TourController::class)->group(function () {
     Route::get('/list', 'index');
+    Route::get('/product', 'product');
     Route::get('{id}', 'show');
     Route::put('{id}', 'update');
     Route::delete('{id}', 'destroy');
@@ -53,7 +54,9 @@ Route::prefix('payments')->controller(PaymentController::class)->group(function 
     Route::put('/{id}/status', 'updateStatus');
     Route::get('/sort={key}', 'sortPayment');
     Route::post('/momo_payment', 'momo_payment');
+    Route::post('/zalo_payment', 'zalo_payment');
     Route::post('/momo/ipn', 'momoIPN');
+    Route::post('/zalo/ipn', 'zaloIPN');
 });
 
 /**Group api  reviews*/
@@ -65,8 +68,6 @@ Route::prefix('reviews')->controller(ReviewController::class)->group(function ()
     Route::post('/', 'store');
     Route::put('/{id}/status', 'updateStatus');
 });
-
-
 
 /**Group api booking */
 Route::prefix('bookings')->controller(BookingController::class)->group(function () {

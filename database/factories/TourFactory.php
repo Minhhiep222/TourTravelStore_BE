@@ -25,7 +25,8 @@ class TourFactory extends Factory
             'start_date' => $this->faker->date(), // Generates a random start date
             'end_date' => $this->faker->date(), // Generates a random end date
             'location' => $this->faker->city() . ', ' . $this->faker->country(), // Generates a random location
-            'availability' => $this->faker->boolean(), // Generates a random availability status
+            'availability' =>  $this->faker->randomElement(['0', '1', '2']),  // Tình trạng sẵn có (0, 1, 2)
+            'status' => $this->faker->randomElement(['0', '1', '2']),
         ];
     }
 }

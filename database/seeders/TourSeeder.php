@@ -22,7 +22,7 @@ class TourSeeder extends Seeder
                 'start_date' => '2024-06-01',
                 'end_date' => '2024-06-01',
                 'location' => 'Paris, Pháp',
-                'availability' => true,
+                'availability' => 1,
                 'status'=>1,
             ],
             [
@@ -34,7 +34,7 @@ class TourSeeder extends Seeder
                 'start_date' => '2024-07-10',
                 'end_date' => '2024-07-13',
                 'location' => 'Rio de Janeiro, Brazil',
-                'availability' => true,
+                'availability' => 1,
                 'status'=>1,
             ],
             [
@@ -46,7 +46,7 @@ class TourSeeder extends Seeder
                 'start_date' => '2024-08-15',
                 'end_date' => '2024-08-16',
                 'location' => 'Cusco Region, Peru',
-                'availability' => false,
+                'availability' => 1,
                 'status'=>2,
             ],
             [
@@ -58,7 +58,7 @@ class TourSeeder extends Seeder
                 'start_date' => '2024-09-01',
                 'end_date' => '2024-09-01',
                 'location' => 'Cyclades, Hy Lạp',
-                'availability' => true,
+                'availability' => 1,
                 'status'=>1,
             ],
             [
@@ -70,7 +70,7 @@ class TourSeeder extends Seeder
                 'start_date' => '2024-10-01',
                 'end_date' => '2024-10-05',
                 'location' => 'Cần Thơ, Việt Nam',
-                'availability' => true,
+                'availability' => 1,
                 'status'=>1,
             ],
             [
@@ -82,7 +82,7 @@ class TourSeeder extends Seeder
                 'start_date' => '2024-10-01',
                 'end_date' => '2024-10-05',
                 'location' => 'Greece',
-                'availability' => false,
+                'availability' => 1,
                 'status'=>2,
             ],
             [
@@ -94,7 +94,7 @@ class TourSeeder extends Seeder
                 'start_date' => '2024-10-01',
                 'end_date' => '2024-10-05',
                 'location' => 'Greece',
-                'availability' => false,
+                'availability' => 1,
                 'status'=>2,
             ],
             [
@@ -106,7 +106,7 @@ class TourSeeder extends Seeder
                 'start_date' => '2024-08-15',
                 'end_date' => '2024-08-16',
                 'location' => 'New York',
-                'availability' => false,
+                'availability' => 1,
                 'status'=>2,
             ],
             // [
@@ -137,7 +137,7 @@ class TourSeeder extends Seeder
             //     'start_date' => '2024-12-15',
             //     'end_date' => '2024-12-22',
             //     'location' => 'Switzerland',
-            //     'availability' => false,
+            //     'availability' => 1,
             // ],
             // [
             //     'name' => 'Island Hopping',
@@ -161,6 +161,6 @@ class TourSeeder extends Seeder
             // ],
         ];
 
-        DB::table('tours')->insert($tours);
+        // DB::table('tours')->insert($tours);
     }
 }
