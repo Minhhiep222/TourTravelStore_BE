@@ -293,4 +293,46 @@ class PaymentController extends Controller
         }
 
     }
+    public function indexx()
+{
+    // Lọc chỉ lấy những đơn hàng có trạng thái "completed"
+    $payments = Payment::with(['user', 'tour'])
+        ->where('status', 'completed') // Điều kiện lọc theo trạng thái "completed"
+        ->get();
+
+    return response()->json($payments);
+}
+public function showw($id)
+{
+    // Sử dụng eager loading để lấy thông tin user và tour
+    $payment = Payment::with(['user', 'tour'])->find($id);
+
+    if (!$payment) {
+        return response()->json(['message' => 'Order not found'], 404);
+    }
+
+    if ($payment->status !== 'completed') {
+        return response()->json(['message' => 'Order not completed'], 403);
+    }
+
+    // Trả về thông tin đầy đủ của payment, user và tour
+    return response()->json([
+        'message' => 'Order details retrieved successfully',
+        'data' => $payment
+    ]);
+}
+
+    // API: Xóa đơn hàng
+    public function delete($id)
+    {
+        $payment = Payment::find($id);
+
+        if (!$payment) {
+            return response()->json(['message' => 'Order not found'], 404);
+        }
+
+        $payment->delete();
+
+        return response()->json(['message' => 'Order deleted successfully']);
+    }
 }
