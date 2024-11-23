@@ -74,83 +74,44 @@ class TourController extends Controller
       * @param \Illuminate\Http\Request $request
       * @return mixed|\Illuminate\Http\JsonResponse
       */
-    public function store(Request $request)
-    {
-        try {
-            $validatedData = $request->validate([
-                'name' => 'required|string|max:255',
-                'description' => 'required|string',
-                'duration' => 'required|integer',
-                'price' => 'required|integer',
-                'location' => 'required|string',
-                'images.*' => 'required|file',
-                'schedules' => 'nullable',
-                'user_id' => 'nullable',
-            ]);
+      public function store(Request $request)
+      {
+          try {
+              $validatedData = $request->validate([
+                  'name' => 'required|string|max:255',
+                  'description' => 'required|string',
+                  'duration' => 'required|integer',
+                  'price' => 'required|integer',
+                  'location' => 'required|string',
+                  'images.*' => 'required|file',
+                  'schedules' => 'nullable',
+                  'user_id' => 'nullable',
+              ]);
 
-            $tour = Tour::create($validatedData);
+              $result = $this->tourService->createTour($validatedData, $request->file('images'));
 
+              $tour = Tour::with('images')->find(1);
+              // $tour->tour_id = HashSecret::encrypt($tour->tour_id);
 
-            //Get array schedules
-            if ($request->has('schedules')) {
-                $schedules = json_decode($validatedData['schedules'], true);
-                foreach($schedules as $item) {
-                    $schedule = Schedule::create([
-                        'name' => $item['name_schedule'],
-                        'time' => $item['time_schedule'],
-                        'tour_id' => $tour->id,
-                    ]);
-                }
-            }
+              broadcast(new Notify($tour));
 
-            // Handle file uploads
-            if ($request->hasFile('images')) {
-                foreach ($request->file('images') as $image) {
-                    $path = time() . '_' . $image->getClientOriginalName();
-                    Storage::disk('public')->put($path, File::get($image));
-                    $image = Images::create([
-                        'tour_id' => $tour->id,
-                        'image_url' => $path,
-                        'alt_text' => $request->input('alt_text', 'Default alt text'),
-                    ]);
-                    // http://127.0.0.1:8000/images/7B9dDErH16ywJWIhieXV9sRYitUb0dC5qNgJ0jCo.png
-                }
+              return response()->json([
+                  'message' => "Tour successfully created",
+                  'tour' => $result['tour'],
+                  'image' => $result['image'],
+                  'schedule' => $result['schedule'],
+              ], 200);
 
-            }
+          } catch (\Exception $e) {
+              Log::error('Error creating tour: ' . $e->getMessage());
 
+              return response()->json([
+                  'message' => "Something went wrong",
+                  'error' => $e->getMessage()
+              ], 500);
+          }
+      }
 
-          $users = User::all();
-          foreach ($users as $user) {
-            if($user->role == 1 && $user->notication == 1) {
-                $notification = NotificationTour::create([
-                    'tour_id' => $tour->id,
-                    'user_id' => $user->id,
-                    'read' => false,
-                ]);
-            }
-        }
-        $tour = Tour::with('images')->find($tour->id);
-        // $tour->tour_id = HashSecret::encrypt($tour->tour_id);
-
-        broadcast(new Notify($tour));
-
-            return response()->json([
-                'message' => "Tour successfully created",
-                'tour' => $tour,
-                'image' => $image,
-                'schedule' => $schedule,
-                'notification' => $notification,
-            ], 200);
-
-        } catch (\Exception $e) {
-            Log::error('Error creating tour: ' . $e->getMessage());
-
-            return response()->json([
-                'message' => "Something went wrong",
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
 
     //  public function store(Request $request)
 
