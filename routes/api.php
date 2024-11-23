@@ -17,6 +17,8 @@ use App\Http\Controllers\GoogleMapController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\UserDetailsController;
 use App\Http\Controllers\StatisticalController;
+use App\Http\Controllers\NotificationController;
+use App\Events\Notify;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -65,7 +67,7 @@ Route::prefix('reviews')->controller(ReviewController::class)->group(function ()
     Route::get('{id}', 'show');
     Route::put('{id}', 'update');
     Route::delete('{id}', 'destroy');
-    Route::post('/', 'store');
+    // Route::post('/', 'store');
     Route::put('/{id}/status', 'updateStatus');
 });
 
@@ -80,6 +82,19 @@ Route::prefix('bookings')->controller(BookingController::class)->group(function 
     Route::get('/sort={key}', 'sortBooking');
 });
 
+//
+Route::post('seenAllNotification', [NotificationController::class, 'seenAllNotification']);
+Route::get('checkNotifyUser', [NotificationController::class, 'checkNotifyUser']);
+Route::post('turnOffNotification', [NotificationController::class, 'turnOffNotification']);
+Route::post('readNotification', [NotificationController::class, 'readNotification']);
+Route::get('getNotification', [NotificationController::class, 'getNotification']);
+Route::get('displayEvent', [NotificationController::class, 'displayEvent']);
+Route::get('getDistanceTravel', [GoogleMapController::class, 'getDistanceTravel']);
+Route::get('getTimeTravel', [GoogleMapController::class, 'getTimeTravel']);
+Route::get('reverseCoordinateConvertion', [GoogleMapController::class, 'reverseCoordinateConvertion']);
+Route::get('coordinateConvertion', [GoogleMapController::class, 'coordinateConvertion']);
+Route::get('getToursFavorite', [FavoriteController::class, 'getToursFavorite']);
+Route::post('/chatbot', [ChatBotController::class, 'chatbot']);
 /**Group api for chat real time channel */
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/conversations', [ChatController::class, 'getConversations']);
@@ -119,11 +134,19 @@ Route::get('displayNewstTour',[TourController::class,'displayNewstTour']);
 Route::post('login',[AuthController::class,'login']);
 Route::middleware('auth:sanctum')->group(function(){
     Route::get('inforCurrentUser', [AuthController::class,'inforCurrentUser']);
+    Route::post('createTour', [NotificationController::class, 'createTour']);
 });
+Route::get('/broadcast',function(){
+    broadcast(new Notify());
+});
+// Route::get('/broadcast',function(){
+//     broadcast(new Notify());
+// });
 Route::post('RegistermoreInfomation', [AuthController::class,'RegistermoreInfomation']);
 Route::post('sendCode', [AuthController::class,'sendCode']);
 Route::post('registerMainInfo', [AuthController::class,'registerMainInfo']);
 Route::post('mainInformation', [AuthController::class,'mainInformation']);
+// Route::post('store', [TourController::class, 'store']);
 //
 
 

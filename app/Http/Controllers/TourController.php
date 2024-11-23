@@ -12,6 +12,7 @@ use App\Models\Images;
 use App\Models\Booking;
 use App\Models\Favorite;
 use App\Models\Schedule;
+use App\Models\NotificationTour;
 use App\Models\HashSecret;
 use Storage;
 use File;
