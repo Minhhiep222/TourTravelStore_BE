@@ -56,17 +56,17 @@ class User extends Authenticatable
         $encryptedId = openssl_encrypt($id, $method, $key, 0, $iv);
         return base64_encode($iv . $encryptedId);
     }
-    
-        
+
+
     public function decryptId($encryptedId, $key) {
         $method = 'AES-256-CBC';
-        
+
         $decodedUrl = urldecode($encryptedId);
         $decodedData = base64_decode($decodedUrl);
         $ivLength = openssl_cipher_iv_length($method);
         $iv = substr($decodedData, 0, $ivLength);
         $encryptedIdWithoutIv = substr($decodedData, $ivLength);
-        
+
         return openssl_decrypt($encryptedIdWithoutIv, $method, $key, 0, $iv);
     }
     public static function usernameExists($username)
@@ -76,10 +76,18 @@ class User extends Authenticatable
     public static function createUser($request)
     {
         return self::create([
-            'username' => $request['username'], 
+            'username' => $request['username'],
             'password' => Hash::make($request['password']),
             'role' => $request['role'],
         ]);
     }
-  
+    public function details()
+    {
+        return $this->hasOne(UserDetails::class, 'user_id');
+    }
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
+    }
+
 }

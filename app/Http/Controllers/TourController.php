@@ -34,12 +34,16 @@ class TourController extends Controller
             // Lấy số lượng tour mỗi trang từ request
             $perPage = $request->input('per_page', 10);
 
+            //Lấy id người bán
+            $user_id = (int) $request->query('user_id', 10);
+            // dd($user_id);
+
             // Lấy tham số sắp xếp từ query string (mặc định sắp xếp theo giá)
             $sortBy = $request->query('sort', 'price');
 
             // Khởi tạo truy vấn
-            $tours = Tour::with('images', 'schedules');
-
+            $tours = Tour::with('images', 'schedules')->where("user_id", $user_id);
+            // dd($user_id);/
             // Sắp xếp theo tiêu chí
             switch ($sortBy) {
                 case 'price':
@@ -114,6 +118,7 @@ class TourController extends Controller
                 'location' => 'required|string',
                 'images.*' => 'required|file',
                 'schedules' => 'nullable',
+                'user_id' => 'nullable',
             ]);
 
             $tour = Tour::create($validatedData);
@@ -377,14 +382,14 @@ class TourController extends Controller
 
     public function displayNewstTour(Request $request) {
         try {
-            
+
             $user = $request->user_id;
             $newstTour = Tour::getLatestTours();
-            $encryptedTours = $newstTour->map(function($tour) use ($user) {  
+            $encryptedTours = $newstTour->map(function($tour) use ($user) {
              $isFavorite = Favorite::where('user_id', $user)
                                       ->where('tour_id', $tour->id)
                                       ->exists();
-    
+
                 return [
                     'id' => HashSecret::encrypt($tour->id),
                     'name' => $tour->name,
@@ -398,10 +403,10 @@ class TourController extends Controller
                     'create_at' => $tour->create_at,
                     'update_at' => $tour->update_at,
                     'images' => $tour->images,
-                    'is_favorite' => $isFavorite, 
+                    'is_favorite' => $isFavorite,
                 ];
             });
-    
+
             if ($newstTour->isEmpty()) {
                 return response()->json([
                     "message" => "Tour not found",
@@ -620,6 +625,7 @@ class TourController extends Controller
                 return response()->json([
                     "message" => "Get tour successful",
                     'data' => $tourDetail,
+                    // 'user' => $tourDetail->user
                 ], 200);
             } else {
                 return response()->json([
@@ -718,11 +724,12 @@ class TourController extends Controller
      * Method get count tour upload
      * @return mixed|\Illuminate\Http\JsonResponse
      */
-    public function countTours()
+    public function countTours(Request $request)
     {
         try {
+            $user_id = (int) $request->query('user_id', 10);
             // Lấy số lượng tour đã đăng
-            $count = Tour::count();
+            $count = Tour::where("user_id", $user_id)->count();
             // Trả về số lượng tour
             return response()->json([
                 'count' => $count
@@ -743,37 +750,37 @@ class TourController extends Controller
      * @param mixed $id
      * @return mixed|\Illuminate\Http\JsonResponse
      */
-    public function updateStatus($tatus, $id)
-    {
+    public function updateStatus(Request $request, $id)
+{
+    try {
+        $id = HashSecret::decrypt($id);
+        // Kiểm tra xem tour có tồn tại không
+        $tour = Tour::findOrFail($id);
 
-        try {
-            //Check tour not foud
-            $tour = Tour::findOrFail($id);
-            // Check if results are found
-            if ($tour->isEmpty()) {
-                return response()->json([
-                    'message' => 'No tours found.'
-                ], 404);
-            }
-            $tour->availability = $tatus;
-            $tour->save();
+        // Cập nhật trạng thái và tính khả dụng
+        $tour->status = $request->status;
+        $tour->availability = $request->status === 1 ? 1 : 0;
 
-            return response()->json([
-                'message' => 'Tour status updated successfully.',
-                'tour' => $tour
-            ], 200);
+        // Lưu thông tin vào database
+        $tour->save();
 
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'message' => 'Tour not found.',
-            ], 404);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'An error occurred while updating tour status.',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        return response()->json([
+            'message' => 'Tour status updated successfully.',
+            'tour' => $tour
+        ], 200);
+
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json([
+            'message' => 'Tour not found.',
+        ], 404);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'An error occurred while updating tour status.',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
+
 
     public function sortTours(Request $request)
     {
@@ -818,7 +825,15 @@ class TourController extends Controller
 
         // return Response::make($file, 200)->header("Content-Type", $type);
     }
+//     public function updateStatus(Request $request, $id)
+// {
+//     $tour = Tour::findOrFail($id);
+//     $tour->status = $request->status;
+//     $tour->availability = $request->availability;
+//     $tour->save();
 
+//     return response()->json(['message' => 'Cập nhật trạng thái thành công!'], 200);
+// }
 
 
 }

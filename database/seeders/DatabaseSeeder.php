@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Message;
 use Illuminate\Database\Seeder;
 use App\Models\Payment;
 use App\Models\Tour;
@@ -38,5 +39,6 @@ class DatabaseSeeder extends Seeder
         Booking::factory()->count(50)->create();
         Review::factory()->count(20)->create();
         ImageReview::factory()->count(20)->create();
+        Message::factory()->count(5)->create();
     }
 }

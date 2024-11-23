@@ -68,6 +68,16 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
+        User::updateOrCreate(
+            ['username' => 'nhoctoan6666@gmail.com'],
+            [
+                'name' => 'Duc Toan',
+                'email' => 'nhoctoan6666@gmail.com',
+                'password' => Hash::make('Ductoan3$'),
+                'role' => 3,
+                'email_verified_at' => now(),
+            ]
+        );
 
     }
 }

@@ -26,6 +26,9 @@ class Booking extends Model
     public function tour() {
         return $this->hasOne(Tour::class, 'id', 'tour_id');
     }
-
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class); // Quan hệ 1 booking thuộc về 1 customer
+    }
 
 }
