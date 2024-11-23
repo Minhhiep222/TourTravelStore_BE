@@ -86,11 +86,13 @@ class TourController extends Controller
                   'images.*' => 'required|file',
                   'schedules' => 'nullable',
                   'user_id' => 'nullable',
+                  'status' => 'nullable',
               ]);
 
               $result = $this->tourService->createTour($validatedData, $request->file('images'));
 
-              $tour = Tour::with('images')->find(1);
+              $tour = Tour::with('images')->find($result['tour']->id);
+            // dd($result['tour']->id);
               // $tour->tour_id = HashSecret::encrypt($tour->tour_id);
 
               broadcast(new Notify($tour));
