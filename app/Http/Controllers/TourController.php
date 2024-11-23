@@ -82,6 +82,7 @@ class TourController extends Controller
                 'images.*' => 'required|file',
                 'schedules' => 'nullable',
                 'user_id' => 'nullable',
+                'status' => 'nullable',
             ]);
 
             $result = $this->tourService->createTour($validatedData, $request->file('images'));
