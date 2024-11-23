@@ -20,151 +20,90 @@ use Illuminate\Support\Facades\Log;
 
 class TourController extends Controller
 {
+
+    protected $tourService;
+
+    public function __construct(Tour $tourService)
+    {
+        $this->tourService = $tourService;
+    }
+
     /**
      * Get tours
      * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
-    {
-        try {
-            // Lấy số lượng tour mỗi trang từ request
-            $perPage = $request->input('per_page', 10);
+     {
+         try {
+             $result = $this->tourService->getToursByUser(
+                 $request->input('user_id', 10),
+                 $request->input('per_page', 10),
+                 $request->query('sort', 'price')
+             );
 
-            //Lấy id người bán
-            $user_id = (int) $request->query('user_id', 10);
-            // dd($user_id);
-
-            // Lấy tham số sắp xếp từ query string (mặc định sắp xếp theo giá)
-            $sortBy = $request->query('sort', 'price');
-
-            // Khởi tạo truy vấn
-            $tours = Tour::with('images', 'schedules')->where("user_id", $user_id);
-            // dd($user_id);/
-            // Sắp xếp theo tiêu chí
-            switch ($sortBy) {
-                case 'price':
-                    $tours->orderBy('price', 'desc'); // Sắp xếp theo giá giảm dần
-                    break;
-                case 'latest':
-                    $tours->orderBy('created_at', 'desc'); // Sắp xếp theo thời gian tạo mới nhất
-                    break;
-                default:
-                    return response()->json(['message' => 'Invalid sort parameter.'], 400);
-            }
-
-            // Phân trang kết quả
-            $tours = $tours->paginate($perPage);
-
-            // Tạo mảng tour tùy chỉnh để trả về
-            $toursArray = $tours->getCollection()->map(function ($tour) {
-                return [
-                    'id' => HashSecret::encrypt($tour->id), // Mã hóa ID tour
-                    'name' => $tour->name,
-                    'description' => $tour->description,
-                    'duration' => $tour->duration,
-                    'price' => $tour->price,
-                    'start_date' => $tour->start_date,
-                    'end_date' => $tour->end_date,
-                    'location' => $tour->location,
-                    'availability' => $tour->availability,
-                    'images' => $tour->images,
-                    'schedules' => $tour->schedules,
-                ];
-            });
-
-            return response()->json([
-                'tours' => $toursArray,
-                'links' => [
-                    'next' => $tours->nextPageUrl(),
-                    'prev' => $tours->previousPageUrl(),
-                ],
-                'meta' => [
-                    'current_page' => $tours->currentPage(),
-                    'last_page' => $tours->lastPage(),
-                    'per_page' => $tours->perPage(),
-                    'total' => $tours->total(),
-                ]
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+             return response()->json($result, 200);
+         } catch (\Exception $e) {
+             return response()->json([
+                 'error' => $e->getMessage(),
+             ], 500);
+         }
     }
 
+    public function product(Request $request)
+     {
+         try {
+            $result = $this->tourService->getToursByApp(
+                $request->input('per_page', 10),
+                $request->query('sort', 'price')
+            );
+
+             return response()->json($result, 200);
+         } catch (\Exception $e) {
+             return response()->json([
+                 'error' => $e->getMessage(),
+             ], 500);
+         }
+    }
 
      /**
       * Create tour
       * @param \Illuminate\Http\Request $request
       * @return mixed|\Illuminate\Http\JsonResponse
       */
-     public function store(Request $request)
-     {
+    public function store(Request $request)
+    {
         try {
-            // dd($request);
-            $schedule = null;
-            //Make vaildate for variable
             $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
                 'description' => 'required|string',
                 'duration' => 'required|integer',
                 'price' => 'required|integer',
-                // 'start_date' => 'required|date',
-                // 'end_date' => 'required|date|after:start_date',
                 'location' => 'required|string',
                 'images.*' => 'required|file',
                 'schedules' => 'nullable',
                 'user_id' => 'nullable',
             ]);
 
-            $tour = Tour::create($validatedData);
-
-            //Get array schedules
-            if ($request->has('schedules')) {
-                $schedules = json_decode($validatedData['schedules'], true);
-                foreach($schedules as $item) {
-                    $schedule = Schedule::create([
-                        'name' => $item['name_schedule'],
-                        'time' => $item['time_schedule'],
-                        'tour_id' => $tour->id,
-                    ]);
-                }
-            }
-
-            // Handle file uploads
-            if ($request->hasFile('images')) {
-                foreach ($request->file('images') as $image) {
-                    $path = time() . '_' . $image->getClientOriginalName();
-                    Storage::disk('public')->put($path, File::get($image));
-                    $image = Images::create([
-                        'tour_id' => $tour->id,
-                        'image_url' => $path,
-                        'alt_text' => $request->input('alt_text', 'Default alt text'),
-                    ]);
-                    // http://127.0.0.1:8000/images/7B9dDErH16ywJWIhieXV9sRYitUb0dC5qNgJ0jCo.png
-                }
-
-            }
+            $result = $this->tourService->createTour($validatedData, $request->file('images'));
 
             return response()->json([
                 'message' => "Tour successfully created",
-                'tour' => $tour,
-                'image' => $image,
-                'schedule' => $schedule,
+                'tour' => $result['tour'],
+                'image' => $result['image'],
+                'schedule' => $result['schedule'],
             ], 200);
 
-
-
         } catch (\Exception $e) {
-            // Ghi lỗi vào file log
             Log::error('Error creating tour: ' . $e->getMessage());
 
             return response()->json([
-                'message' => "something really wrong",
+                'message' => "Something went wrong",
                 'error' => $e->getMessage()
             ], 500);
         }
-     }
+    }
+
+    //  public function store(Request $request)
 
 
     /**
@@ -173,85 +112,34 @@ class TourController extends Controller
      * @param int $id
      * @return mixed|\Illuminate\Http\JsonResponse
      */
+
     public function update(Request $request, $hashId)
     {
         try {
-            $schedules = null;
-            $id = HashSecret::decrypt($hashId); // Decrypt the hash ID
-            $tour = Tour::with('images', 'schedules')->find($id);
-            // Check if tour exists
-            if (!$tour) {
-                return response()->json([
-                    'message' => "Tour not found",
-                ], 404);
-            }
-
-            // Validate data
             $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
                 'description' => 'required|string',
                 'duration' => 'required|integer',
                 'price' => 'required|integer',
-                // 'start_date' => 'required|date',
-                // 'end_date' => 'required|date|after:start_date',
                 'location' => 'required|string',
                 'images.*' => 'nullable',
                 'schedules' => 'nullable',
+                'status' => 'required',
+                'user_id' => 'nullable',
             ]);
 
-            // Update tour
-            $tour->update($validatedData);
 
-            // Update schedules if provided
-            if ($request->has('schedules')) {
-                // Delete existing schedules
-                $tour->schedules()->delete();
-
-                // Get array of new schedules
-                $schedules = json_decode($validatedData['schedules'], true);
-                foreach ($schedules as $item) {
-                    Schedule::create([
-                        'name' => $item['name_schedule'],
-                        'time' => $item['time_schedule'],
-                        'tour_id' => $tour->id,
-                    ]);
-                }
-            }
-            $uploadedImages = [];
-            // Handle file uploads
-            if ($request->hasFile('images')) {
-                //Delete tour exitting
-                $images = $tour->images;
-                foreach($images as $image){
-                    $filePath = public_path('/images/' . $image->image_url);
-                    if (file_exists($filePath)) {
-                        unlink($filePath);
-                    }
-                    $image->delete();
-                }
-                // Upload new images
-                foreach ($request->file('images') as $image) {
-                    $path = time() . '_' . $image->getClientOriginalName();
-                    Storage::disk('public')->put($path, File::get($image));
-                    $uploadedImages[] =  $image;
-                    Images::create([
-                        'tour_id' => $tour->id,
-                        'image_url' => $path,
-                        'alt_text' => $request->input('alt_text', 'Default alt text'),
-                    ]);
-                }
-            }
+            $result = $this->tourService->updateTour($hashId, $validatedData, $request->file('images'));
 
             return response()->json([
                 'message' => "Tour successfully updated",
-                'tour' => $tour,
-                'image' => $uploadedImages,
-                'schedules' => $schedules,
-                'id' => HashSecret::encrypt($tour->id), // Updated to encrypt the tour ID
+                'tour' => $result['tour'],
+                'image' => $result['images'],
+                'schedules' => $result['schedules'],
+                'id' => $result['encrypted_id'],
             ], 200);
 
         } catch (\Exception $e) {
-            // Log the error
             Log::error('Error updating tour: ' . $e->getMessage());
 
             return response()->json([
@@ -269,62 +157,32 @@ class TourController extends Controller
     public function destroy($hashId)
     {
         try {
-            $id = HashSecret::decrypt($hashId); // Decrypt the hash ID
-            $tour = Tour::find($id);
-            // Check if tour exists
-            if (!$tour) {
-                return response()->json([
-                    "message" => "Tour not found",
-                ], 404);
-            }
-
-            // Delete tour
-            $tour->delete();
+            $result = $this->tourService->deleteTour($hashId);
 
             return response()->json([
-                "message" => "Destroy successfully",
+                "message" => "Tour deleted successfully"
             ], 200);
+
         } catch (\Exception $e) {
-            // Write bug on file log
-            Log::error("Error destroy tour". $e->getMessage());
             return response()->json([
-                "message" => "Something Went Wrong",
-                "error" =>  $e->getMessage()
+                "message" => "Tour not found"
+            ], 404);
+
+        } catch (\Exception $e) {
+            Log::error("Error deleting tour: " . $e->getMessage());
+
+            return response()->json([
+                "message" => "Something went wrong",
+                "error" => $e->getMessage()
             ], 500);
         }
     }
 
     /**
-     * Destroy many tours
-     * @param \Illuminate\Http\Request $request
+     * Summary of show
+     * @param mixed $hashId
      * @return mixed|\Illuminate\Http\JsonResponse
      */
-    public function destroyTours(Request $request)
-    {
-        try {
-            $tours = Tour::whereIn('id', $request->input('ids'))->get(); // Assuming 'ids' is the key in the request
-            // Check if tour not exists
-            if ($tours->isEmpty()) {
-                return response()->json([
-                    "message" => "Tour not found",
-                ], 404);
-            }
-
-            // Delete item of array tours
-            foreach ($tours as $tour) {
-                $tour->delete();
-            }
-            return response()->json([
-                "message" => "Destroy Tour successfully",
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                "message" => "Something Went Wrong",
-                "error" => $e
-            ], 500);
-        }
-    }
-
     public function show($hashId)
     {
         try {
@@ -358,6 +216,11 @@ class TourController extends Controller
         }
     }
 
+    /**
+     * Summary of displayNewstTour
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function displayNewstTour(Request $request) {
         try {
 
@@ -381,6 +244,7 @@ class TourController extends Controller
                     'create_at' => $tour->create_at,
                     'update_at' => $tour->update_at,
                     'images' => $tour->images,
+                    'avgReview' => Tour::totalAverageRating( $tour->reviews),
                     'is_favorite' => $isFavorite,
                 ];
             });
@@ -396,7 +260,7 @@ class TourController extends Controller
                 ], 200);
             }
 
-        } catch (QueryException $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 "message" => "Database query error",
                 "error" => $e->getMessage()
@@ -409,21 +273,24 @@ class TourController extends Controller
         }
     }
 
+    /**
+     * Summary of isValidEmail
+     * @param mixed $username
+     * @return mixed
+     */
     public function isValidEmail($username)
     {
         return filter_var($username, FILTER_VALIDATE_EMAIL);
     }
     //dat tours
     public function bookTour(Request $request) {
-        $key = 'dat123';
         try {
             $validatedData = $request->validate([
                 'tour_id' => 'required',
                 'nameContact' => 'required|string|max:255|min:5|',
-              'emailContact' => 'required|string|min:10|max:255|regex:/^\S*$/|unique:contacts,email',
+                'emailContact' => 'required|string|min:10|max:255|regex:/^\S*$/|unique:contacts,email',
                 'nameCustomer' => 'required|string|max:255|min:5|',
-              'emailCustomer' => 'required|string|min:10|max:255|regex:/^\S*$/|unique:customers,email',
-                // 'emailCustomer' => 'required|string|min:10|max:255|regex:/^\S*$/',
+                'emailCustomer' => 'required|string|min:10|max:255|regex:/^\S*$/|unique:customers,email',
                 'totalPrice' => 'required|numeric|min:0',
                 'type_customer' => 'required|in:self,other',
                 'number_of_adult' => 'required|numeric|min:0',
@@ -447,7 +314,6 @@ class TourController extends Controller
                 'emailCustomer.unique' => 'email already exists in the system',
                 'totalPrice.required' => 'total price is required',
                 'totalPrice.numeric' => 'total price must be a number',
-                'totalPrice.numeric' => 'must not be less than 0',
                 'type_customer.required' => 'type is required',
                 'type_customer.in' => 'invalid type',
                 'number_of_adult.required' => 'number of adult is required',
@@ -570,16 +436,18 @@ class TourController extends Controller
                 'message' => 'Booking the tour successfully',
                 'booking' => $booking,
             ], 200);
-        } catch (ValidationException $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'message' => 'submit failed',
-                'errors' => $e->validator->errors(),
             ], 422);
         }
     }
 
-
-    //xem chi tiet tour
+    /**
+     * Summary of TourDetail
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function TourDetail(Request $request) {
         try {
 
@@ -617,7 +485,6 @@ class TourController extends Controller
             ], 500);
         }
     }
-
 
     /**
      * Look for tour with location
@@ -729,35 +596,35 @@ class TourController extends Controller
      * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function updateStatus(Request $request, $id)
-{
-    try {
-        $id = HashSecret::decrypt($id);
-        // Kiểm tra xem tour có tồn tại không
-        $tour = Tour::findOrFail($id);
+    {
+        try {
+            $id = HashSecret::decrypt($id);
+            // Kiểm tra xem tour có tồn tại không
+            $tour = Tour::findOrFail($id);
 
-        // Cập nhật trạng thái và tính khả dụng
-        $tour->status = $request->status;
-        $tour->availability = $request->status === 1 ? 1 : 0;
+            // Cập nhật trạng thái và tính khả dụng
+            $tour->status = $request->status;
+            $tour->availability = $request->status === 1 ? 1 : 0;
 
-        // Lưu thông tin vào database
-        $tour->save();
+            // Lưu thông tin vào database
+            $tour->save();
 
-        return response()->json([
-            'message' => 'Tour status updated successfully.',
-            'tour' => $tour
-        ], 200);
+            return response()->json([
+                'message' => 'Tour status updated successfully.',
+                'tour' => $tour
+            ], 200);
 
-    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-        return response()->json([
-            'message' => 'Tour not found.',
-        ], 404);
-    } catch (\Exception $e) {
-        return response()->json([
-            'message' => 'An error occurred while updating tour status.',
-            'error' => $e->getMessage(),
-        ], 500);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Tour not found.',
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while updating tour status.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
-}
 
 
     public function sortTours(Request $request)
@@ -788,7 +655,6 @@ class TourController extends Controller
         }
     }
 
-
     // http://your-domain.com/images/your_image_filename.jpg
     public function showImage($filename)
     {
@@ -803,15 +669,7 @@ class TourController extends Controller
 
         // return Response::make($file, 200)->header("Content-Type", $type);
     }
-//     public function updateStatus(Request $request, $id)
-// {
-//     $tour = Tour::findOrFail($id);
-//     $tour->status = $request->status;
-//     $tour->availability = $request->availability;
-//     $tour->save();
 
-//     return response()->json(['message' => 'Cập nhật trạng thái thành công!'], 200);
-// }
 
 
 }

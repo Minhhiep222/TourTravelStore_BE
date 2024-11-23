@@ -166,6 +166,7 @@ class PaymentController extends Controller
             $this->store($request);
             //Return url
             return response()->json([
+                "data" => $result,
                 'payUrl' => $jsonResult['payUrl']
             ], 200);
 
@@ -189,7 +190,92 @@ class PaymentController extends Controller
             if ($payment) {
                 // Cập nhật trạng thái thanh toán
                 $payment->status = "completed"; // cập nhật trạng thái
-                $payment->transaction_id = $request->transId; // lưu ID giao dịch
+                $payment->transaction_id = $request->orderId; // lưu ID giao dịch
+                $payment->save(); // lưu thay đổi
+
+                return response()->json([
+                    'message' => 'Payment status updated',
+                ], 200);
+            } else {
+                return response()->json(['message' => 'Payment not found'], 404);
+            }
+
+        }catch(\Exception $e) {
+            return response()->json([
+                'message' => 'Some thing wrong',
+                'error' => $e->getMessage()
+            ], 404);
+        }
+
+    }
+
+
+    /**
+     * Payment with zalo pay
+     * @param \Illuminate\Http\Request $request
+     * @return void
+     */
+    public function zalo_payment(Request $request) {
+
+        $total = (float)$request->total_price;
+
+        $config = [
+            "app_id" => 2553,
+            "key1" => "PcY4iZIKFCIdgZvA6ueMcMHHUbRLYjPL",
+            "key2" => "kLtgPl8HHhfvMuDHPwKfgfsY4Ydm9eIz",
+            "endpoint" => "https://sb-openapi.zalopay.vn/v2/create"
+        ];
+
+        $embeddata = '{
+            "redirecturl": "http://localhost:3000/minh-hiep/payment/success"
+        }'; // Merchant's data
+        $items = '[]'; // Merchant's data
+        $transID = date("ymd") . rand(0,1000000); //Random trans id
+        $order = [
+            "app_id" => $config["app_id"],
+            "app_time" => round(microtime(true) * 1000), // miliseconds
+            "app_trans_id" =>  $transID, // translation missing: vi.docs.shared.sample_code.comments.app_trans_id
+            "app_user" => "user123",
+            "item" => $items,
+            "embed_data" => $embeddata,
+            "amount" => $total,
+            "description" => "Lazada - Payment for the order #$transID",
+            "bank_code" => ""
+        ];
+
+        // appid|app_trans_id|appuser|amount|apptime|embeddata|item
+        $data = $order["app_id"] . "|" . $order["app_trans_id"] . "|" . $order["app_user"] . "|" . $order["amount"]
+            . "|" . $order["app_time"] . "|" . $order["embed_data"] . "|" . $order["item"];
+        $order["mac"] = hash_hmac("sha256", $data, $config["key1"]);
+
+        $context = stream_context_create([
+            "http" => [
+                "header" => "Content-type: application/x-www-form-urlencoded\r\n",
+                "method" => "POST",
+                "content" => http_build_query($order)
+            ]
+        ]);
+
+        $resp = file_get_contents($config["endpoint"], false, $context);
+        $result = json_decode($resp, true);
+        //Tạo đơn hàng
+        $request->merge(['transaction_id' => $transID]);
+        $order = $this->store($request);
+        return response()->json([
+            "data" => $result,
+            "order" => $order,
+            "transID" => $transID,
+        ], 200);
+    }
+
+    public function zaloIPN(Request $request)
+    {
+        try {
+            $payment = Payment::where('transaction_id', $request->transdId)->first();
+            if ($payment) {
+                // Cập nhật trạng thái thanh toán
+                $payment->status = "completed"; // cập nhật trạng thái
+                $payment->transaction_id = $request->transdId; // lưu ID giao dịch
                 $payment->save(); // lưu thay đổi
 
                 return response()->json([
@@ -213,7 +299,7 @@ class PaymentController extends Controller
     $payments = Payment::with(['user', 'tour'])
         ->where('status', 'completed') // Điều kiện lọc theo trạng thái "completed"
         ->get();
-        
+
     return response()->json($payments);
 }
 public function showw($id)

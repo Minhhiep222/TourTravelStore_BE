@@ -32,6 +32,7 @@ class HashSecret extends Model
         return $encoded;
       }
 
+
     /**
      * Hàm giải mã
      * @param mixed $data

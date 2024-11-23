@@ -4,18 +4,29 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
-
 use App\Models\Images;
 use App\Models\Schedule;
 use App\Models\User;
+use App\Models\HashSecret;
+use App\Models\Review;
+use Illuminate\Support\Facades\DB;
+use Storage;
+use File;
 
 class Tour extends Model
 {
     use HasFactory;
 
+    /**
+     * Summary of table
+     * @var string
+     */
     protected $table = "tours";
 
+    /**
+     * Summary of fillable
+     * @var array
+     */
     protected $fillable = [
         'name',
         'description',
@@ -26,47 +37,60 @@ class Tour extends Model
         'location',
         'availability',
         'user_id',
+        'status'
     ];
 
-
+    /**
+     * Summary of images
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function images()
     {
         return $this->hasMany(Images::class, 'tour_id', 'id');
     }
 
+    /**
+     * Summary of reviews
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function reviews() {
+        return $this->hasMany(Review::class, 'tour_id', 'id');
+    }
+
+    /**
+     * Summary of user
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function user() {
         return $this->hasOne(User::class, 'id', 'user_id');
     }
 
+    /**
+     * Summary of schedules
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function schedules()
     {
         return $this->hasMany(Schedule::class, 'tour_id', 'id');
     }
+
+    /**
+     * Summary of getTourDetailWithImages
+     * @param mixed $tourId
+     * @return Model|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|null
+     */
     public static function getTourDetailWithImages($tourId)
     {
         return self::with('images', 'user')->find($tourId);
     }
+
+    /**
+     * Summary of getLatestTours
+     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+     */
     public static function getLatestTours()
     {
-        return self::with('images')->orderBy('created_at', 'desc')->get();
-    }
-    private function encryptId($id, $key) {
-        $method = 'AES-256-CBC';
-        $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($method));
-        $encryptedId = openssl_encrypt($id, $method, $key, 0, $iv);
-        return base64_encode($iv . $encryptedId);
-    }
-
-    private function decryptId($encryptedId, $key) {
-        $method = 'AES-256-CBC';
-
-        $decodedUrl = urldecode($encryptedId);
-        $decodedData = base64_decode($decodedUrl);
-        $ivLength = openssl_cipher_iv_length($method);
-        $iv = substr($decodedData, 0, $ivLength);
-        $encryptedIdWithoutIv = substr($decodedData, $ivLength);
-
-        return openssl_decrypt($encryptedIdWithoutIv, $method, $key, 0, $iv);
+        return self::with('images','reviews')->orderBy('created_at', 'desc')->get();
     }
 
     /**
