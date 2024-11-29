@@ -13,6 +13,7 @@ use App\Models\Booking;
 use App\Models\Review;
 use App\Models\ImageReview;
 
+
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -26,7 +27,9 @@ class DatabaseSeeder extends Seeder
         $this->call(TourGuideSeeder::class,);
         $this->call(FavoriteSeeder::class,);
         $this->call(PaymentSeeder::class);
-
+        $this->call(UserDetailsSeeder::class);
+        $this->call(CustomerSeeder::class);
+        
 
         // \App\Models\User::factory(10)->create();
 
