@@ -15,7 +15,7 @@ class UserSeeder extends Seeder
     {
         // Tạo hoặc cập nhật nếu username đã tồn tại
         User::updateOrCreate(
-            ['username' => 'admin@example.com'],
+            ['username' => '    '],
             [
                 'name' => 'Admin User',
                 'email' => 'admin@example.com',
@@ -27,6 +27,7 @@ class UserSeeder extends Seeder
 
         User::updateOrCreate(
             ['username' => 'user1@example.com'],
+
             [
                 'name' => 'Normal User',
                 'email' => 'user1@example.com',

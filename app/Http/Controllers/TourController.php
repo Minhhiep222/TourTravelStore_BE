@@ -33,6 +33,29 @@ class TourController extends Controller
     }
 
     /**
+     * Summary of admin by app (verify)
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function admin(Request $request)
+     {
+        $app = "0";
+        try {
+            $result = $this->tourService->getToursByApp(
+            $app,
+            $request->input('per_page', 10),
+            $request->query('sort', 'price')
+            );
+
+            return response()->json($result, 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Get tours
      * @return mixed|\Illuminate\Http\JsonResponse
      */
@@ -53,20 +76,27 @@ class TourController extends Controller
          }
     }
 
+    /**
+     * Summary of product with app by 0 (actionning)
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function product(Request $request)
      {
-         try {
+        $app = "1";
+        try {
             $result = $this->tourService->getToursByApp(
+                $app,
                 $request->input('per_page', 10),
                 $request->query('sort', 'price')
             );
 
-             return response()->json($result, 200);
-         } catch (\Exception $e) {
+            return response()->json($result, 200);
+        } catch (\Exception $e) {
              return response()->json([
                  'error' => $e->getMessage(),
              ], 500);
-         }
+        }
     }
 
      /**
@@ -86,11 +116,14 @@ class TourController extends Controller
                   'images.*' => 'required|file',
                   'schedules' => 'nullable',
                   'user_id' => 'nullable',
+                  'status' => 'nullable',
+                  'availability' => 'required',
               ]);
 
               $result = $this->tourService->createTour($validatedData, $request->file('images'));
 
-              $tour = Tour::with('images')->find(1);
+              $tour = Tour::with('images')->find($result['tour']->id);
+            // dd($result['tour']->id);
               // $tour->tour_id = HashSecret::encrypt($tour->tour_id);
 
               broadcast(new Notify($tour));
@@ -100,6 +133,7 @@ class TourController extends Controller
                   'tour' => $result['tour'],
                   'image' => $result['image'],
                   'schedule' => $result['schedule'],
+                  'tour2' => $tour,
               ], 200);
 
           } catch (\Exception $e) {
@@ -608,20 +642,26 @@ class TourController extends Controller
     public function updateStatus(Request $request, $id)
     {
         try {
+            $validatedData = $request->validate([
+                'availability' => 'required',
+                'status' => 'required',
+            ]);
+
+
             $id = HashSecret::decrypt($id);
             // Kiểm tra xem tour có tồn tại không
             $tour = Tour::findOrFail($id);
 
             // Cập nhật trạng thái và tính khả dụng
             $tour->status = $request->status;
-            $tour->availability = $request->status === 1 ? 1 : 0;
+            $tour->availability = $request->availability;
 
             // Lưu thông tin vào database
             $tour->save();
 
             return response()->json([
                 'message' => 'Tour status updated successfully.',
-                'tour' => $tour
+                'tour' => $validatedData
             ], 200);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {

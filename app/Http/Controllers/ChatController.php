@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessageNotifycation;
 use App\Models\Message;
 use App\Events\MessageSent;
 use Illuminate\Http\Request;
@@ -110,11 +111,21 @@ class ChatController extends Controller
                 ->count(),
         ];
 
+        // $receiverId = Conversation::find($conversationId)
+        //     ->participants()
+        //     ->where('user_id', '!=', auth()->id())
+        //     ->first()
+        //     ->user_id;
+
         // dd($conversationDetails);
 
         // Thêm try-catch để handle lỗi broadcast
         try {
             broadcast(new MessageSent($message->load('sender'),$conversationDetails ))->toOthers();
+
+
+            // broadcast(new MessageNotifycation($message))->to('notifications.' . $conversationDetails);
+            // dd(broadcast(new MessageNotifycation($message))->to('notifications.' . $conversationDetails));
             // dd(broadcast(new MessageSent($message))->toOthers());
         } catch (\Exception $e) {
             \Log::error('Broadcasting Error', [

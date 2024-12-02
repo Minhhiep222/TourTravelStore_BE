@@ -17,3 +17,13 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('tour-created', function ($user) {
     return true; // Cho phép mọi người dùng truy cập kênh này
 });
+
+//Channel cho user tham gia hộp chat
+Broadcast::channel('chat.{conversationId}', function ($user, $conversationId) {
+    return true;
+});
+
+//Channel thông báo cho user đã đăng nhập
+Broadcast::channel('notifications.{userId}', function ($user, $userId) {
+    return true;
+});

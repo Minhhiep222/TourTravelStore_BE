@@ -90,7 +90,7 @@ class Tour extends Model
      */
     public static function getLatestTours()
     {
-        return self::with('images','reviews')->orderBy('created_at', 'desc')->get();
+        return self::with('images','reviews')->orderBy('created_at', 'desc')->where("availability", "1")->get();
     }
 
     /**
@@ -134,11 +134,11 @@ class Tour extends Model
         return $this->transformTourResponse($tours);
     }
 
-    public function getToursByApp($perPage = 10, $sortBy = 'price')
+    public function getToursByApp($app ,$perPage = 10, $sortBy = 'price')
     {
         //Get tours with image schedules and review
         $tours = Tour::with('images', 'schedules', 'reviews')
-            ->where("availability", "1")
+            ->where("availability", $app)
             ->when($sortBy === 'price', fn($q) => $q->orderBy('price', 'desc'))
             ->when($sortBy === 'latest', fn($q) => $q->orderBy('created_at', 'desc'))
             ->paginate($perPage);
@@ -235,6 +235,7 @@ class Tour extends Model
         return [
             'name' => $data['name'],
             'description' => $data['description'],
+            'availability' => $data['availability'],
             'duration' => $data['duration'],
             'price' => $data['price'],
             'location' => $data['location'],
@@ -304,7 +305,7 @@ class Tour extends Model
             $tour = Tour::with('images', 'schedules')->findOrFail($id);
 
             // Cập nhật thông tin tour
-            $tour->update($this->prepareTourData($data));
+            $tour->update($data);
             // Xử lý schedules
             $schedules = $this->handleUpdateSchedules($data, $tour);
 
