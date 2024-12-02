@@ -9,7 +9,7 @@ return [
      * You will need an API key to access the Gemini API.
      * You can obtain it from Google AI Studio ( https://makersuite.google.com/ )
      */
-    'api_key' => 'AIzaSyDHmpwCSIkyBPv5uplT1BbG8jeSCYpPB7s',
+    'api_key' => 'AIzaSyD4weedzUw9k2TXg3BotZ9OOqa9dWrfcjY',
 
     /**
      * Gemini Base URL
