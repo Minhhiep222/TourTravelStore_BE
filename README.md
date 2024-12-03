@@ -29,7 +29,7 @@ This is the server-side application for **TourTravelStore**.
 2. **Install XAMPP**:  
    Download XAMPP from [here](https://www.apachefriends.org/download.html).
 
-## Usage:
+## Usage Server Repository:
 
 1. **Clone the server repository**:
 
@@ -64,3 +64,20 @@ php artisan migrate --seed
 ```bash
 php artisan serve
 ```
+
+## Usage Client Repository:
+
+1. **Clone the repository**
+    ```bash
+    git clone https://github.com/Minhhiep222/TourTravelStore_FE.git
+    ```
+2. **run "npm install"**
+
+    ```bash
+    npm install
+    ```
+
+3. **run "npm run serve"**
+    ```bash
+    npm run serve
+    ```
