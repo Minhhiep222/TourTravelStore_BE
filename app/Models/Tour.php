@@ -114,7 +114,6 @@ class Tour extends Model
         return $query->where('category', 'LIKE', '%' . $category . '%');
     }
 
-<<<<<<< HEAD
     /**
      * Get Tour By User Id
      * @param mixed $userId
@@ -127,20 +126,27 @@ class Tour extends Model
         //Get tours with image schedules and review
         $tours = Tour::with('images', 'schedules', 'reviews')
             ->where("user_id", $userId)
-            ->when($sortBy === 'price', fn($q) => $q->orderBy('price', 'desc'))
-            ->when($sortBy === 'latest', fn($q) => $q->orderBy('created_at', 'desc'))
+            ->when($sortBy === 'price', function ($query) {
+                $query->orderBy('price', 'desc');
+            })
+            ->when($sortBy === 'latest', function ($query) {
+                $query->orderBy('created_at', 'desc');
+            })
             ->paginate($perPage);
 
         return $this->transformTourResponse($tours);
     }
-
-    public function getToursByApp($app ,$perPage = 10, $sortBy = 'price')
+    public function getToursByApp($app, $perPage = 10, $sortBy = 'price')
     {
         //Get tours with image schedules and review
         $tours = Tour::with('images', 'schedules', 'reviews')
             ->where("availability", $app)
-            ->when($sortBy === 'price', fn($q) => $q->orderBy('price', 'desc'))
-            ->when($sortBy === 'latest', fn($q) => $q->orderBy('created_at', 'desc'))
+            ->when($sortBy === 'price', function ($query) {
+                $query->orderBy('price', 'desc');
+            })
+            ->when($sortBy === 'latest', function ($query) {
+                $query->orderBy('created_at', 'desc');
+            })
             ->paginate($perPage);
 
         return $this->transformTourResponse($tours);
@@ -416,7 +422,5 @@ class Tour extends Model
     {
         return $this->hasMany(Payment::class);
     }
-=======
->>>>>>> parent of 835406c (OrderDucToan để khoi nham)
 
 }

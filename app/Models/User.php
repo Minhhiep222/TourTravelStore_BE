@@ -22,12 +22,8 @@ class User extends Authenticatable
         'username',  // Thêm thuộc tính username
         'password',
         'email',
-<<<<<<< HEAD
-        'role', 
+        'role',
         'notication',      // Thêm thuộc tính role
-=======
-        'role',      // Thêm thuộc tính role
->>>>>>> parent of 835406c (OrderDucToan để khoi nham)
         'email_verified_at', // Thêm thuộc tính email_verified_at nếu cần
     ];
     /**

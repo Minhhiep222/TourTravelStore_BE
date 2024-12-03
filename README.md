@@ -1,52 +1,66 @@
-# TourtravelStore
+# TourTravelStore
 
-TourTravelStore is a project management travel tour, it was web api.
+TourTravelStore is a travel tour management project built with a web API.
 
--   Serve: Laravel version 10.
--   Client: Vue3.
+-   **Server**: Laravel version 10
+-   **Client**: Vue 3
 
-Features:
+## Features:
 
--   Management (travel tour, user, order, booking,)
--   Payment
--   Search
--   Booking
--   Chat with GPT
--   SEO
--   Google map
+-   Travel tour, user, order, and booking management
+-   Payment integration
+-   Search functionality
+-   Booking system
+-   Real-time Chat with GPT
+-   SEO optimization
+-   Google Maps integration
 
-# TourTravelStore_BE
+---
 
-Respone sever of TourTravelStore
+# TourTravelStore_BE (Backend)
 
-Installation:
+This is the server-side application for **TourTravelStore**.
 
--   Composer: https://getcomposer.org/download
--   Xammpp: https://www.apachefriends.org/download.html
+## Installation:
 
-Usage:
+1. **Install Composer**:  
+   Download Composer from [here](https://getcomposer.org/download).
 
--   B1: Clone serve: https://github.com/Minhhiep222/TourTravelStore_BE.git
--   B2: run "composer install" in terminal or cmd, git bash
--   B3: run "php artisan key:generate" in terminal or cmd, git bash
--   B3: Phpmyadmin create a table database
--   B4: In file .env look for line 14: DB_DATABASE="your-name-database"
--   B5: run "php artisan migrate --seed" in terminal or cmd, git bash for database and data
--   B6: run "php artisan serve" for run sever
+2. **Install XAMPP**:  
+   Download XAMPP from [here](https://www.apachefriends.org/download.html).
 
-# How to run sever of TourTravelStore
+## Usage:
 
-# TourTravelStore_FE
+1. **Clone the server repository**:
 
-Respone client of TourTravelStore
+```bash
+  git clone https://github.com/Minhhiep222/TourTravelStore_BE.git
+```
 
-Installation:
+2. **run "composer install" in terminal or cmd, git bash**
 
--   NodeJs: https://nodejs.org/en/download/package-manager
--
+```bash
+composer install
+```
 
-Usage:
+3. **run "php artisan key:generate" in terminal or cmd, git bash**
 
--   B1: Clone serve: https://github.com/Minhhiep222/TourTravelStore_FE.git
--   B2: run "npm install" in terminal or cmd, git bash
--   B3: run "npm run serve" in terminal or cmd, git bash for database and data
+```bash
+php artisan key:generate
+```
+
+4. **Phpmyadmin create a table database**
+
+5. **In file .env look for line 14: DB_DATABASE="your-name-database"**
+
+6. **run "php artisan migrate --seed" in terminal or cmd, git bash for database and data**
+
+```bash
+php artisan migrate --seed
+```
+
+7. **run "php artisan serve" for run sever**
+
+```bash
+php artisan serve
+```

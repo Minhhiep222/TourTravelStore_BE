@@ -293,7 +293,6 @@ class PaymentController extends Controller
         }
 
     }
-<<<<<<< HEAD
     public function indexx()
 {
     // Lọc chỉ lấy những đơn hàng có trạng thái "completed"
@@ -336,6 +335,4 @@ public function showw($id)
 
         return response()->json(['message' => 'Order deleted successfully']);
     }
-=======
->>>>>>> parent of 835406c (OrderDucToan để khoi nham)
 }
